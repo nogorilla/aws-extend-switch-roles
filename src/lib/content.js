@@ -1,9 +1,9 @@
 const autoAssumeLastRole = new AutoAssumeLastRole();
 
-function extendIAMFormList() {
-  var csrf, list = elById('awsc-username-menu-recent-roles');
+const extendIAMFormList = () => {
+  let csrf, list = elById('awsc-username-menu-recent-roles');
   if (list) {
-    var firstForm = list.querySelector('#awsc-recent-role-0 form');
+    let firstForm = list.querySelector('#awsc-recent-role-0 form');
     csrf = firstForm['csrf'].value;
   } else {
     list = generateEmptyRoleList();
@@ -16,10 +16,10 @@ function extendIAMFormList() {
     'profiles', 'profiles_1', 'profiles_2', 'profiles_3', 'profiles_4',
     'hidesHistory', 'hidesAccountId', 'showOnlyMatchingRoles',
     'autoAssumeLastRole', lastRoleKey
-  ], function(data) {
-    var hidesHistory = data.hidesHistory || false;
-    var hidesAccountId = data.hidesAccountId || false;
-    var showOnlyMatchingRoles = data.showOnlyMatchingRoles || false;
+  ], (data) => {
+    let hidesHistory = data.hidesHistory || false;
+    let hidesAccountId = data.hidesAccountId || false;
+    let showOnlyMatchingRoles = data.showOnlyMatchingRoles || false;
     autoAssumeLastRole.enabled = data.autoAssumeLastRole || false;
 
     if (data.profiles) {
@@ -34,28 +34,28 @@ function extendIAMFormList() {
   });
 }
 
-function generateEmptyRoleList() {
-  var divLbl = document.createElement('div');
+const generateEmptyRoleList = () => {
+  let divLbl = document.createElement('div');
   divLbl.id = 'awsc-recent-roles-label';
   divLbl.textContent = 'Role List:';
-  var ul = document.createElement('ul');
+  let ul = document.createElement('ul');
   ul.id = 'awsc-username-menu-recent-roles';
 
-  var parentEl = elById('awsc-login-account-section');
+  let parentEl = elById('awsc-login-account-section');
   parentEl.appendChild(divLbl);
   parentEl.appendChild(ul);
 
-  var script = document.createElement('script');
+  let script = document.createElement('script');
   script.src = chrome.extension.getURL('/js/csrf-setter.js');
   parentEl.appendChild(script);
   return ul;
 }
 
-function replaceRedirectURI(form, profile) {
+const replaceRedirectURI = (form, profile) => {
   if (!profile.region) return false;
 
   const destRegion = profile.region;
-  var redirectUri = decodeURIComponent(form.redirect_uri.value);
+  let redirectUri = decodeURIComponent(form.redirect_uri.value);
   const md = redirectUri.match(/region=([a-z\-1-9]+)/);
   if (md) {
     const currentRegion = md[1];
@@ -68,36 +68,36 @@ function replaceRedirectURI(form, profile) {
       }
     }
     form.redirect_uri.value = encodeURIComponent(redirectUri);
-  }  
+  }
 }
 
-function hookBeforeSwitch(form, profile) {
+const hookBeforeSwitch = (form, profile) => {
   replaceRedirectURI(form, profile);
   autoAssumeLastRole.save(profile);
   return true;
 }
 
-function hookBeforeExit() {
+const hookBeforeExit = () => {
   autoAssumeLastRole.clear();
   return true;
 }
 
-function loadProfiles(profileSet, list, csrf, hidesHistory, hidesAccountId) {
-  var recentNames = [];
+const loadProfiles = (profileSet, list, csrf, hidesHistory, hidesAccountId) => {
+  let recentNames = [];
 
   if (hidesHistory) {
-    var fc = list.firstChild;
+    let fc = list.firstChild;
     while (fc) {
       list.removeChild(fc);
       fc = list.firstChild;
     }
 
-    var label = elById('awsc-recent-roles-label');
+    let label = elById('awsc-recent-roles-label');
     if (label) {
       label.textContent = label.textContent.replace('History', 'List');
     }
   } else {
-    var li = list.firstElementChild;
+    let li = list.firstElementChild;
     while (li) {
       input = li.querySelector('input[type="submit"]');
       let name = input.value;
@@ -117,13 +117,13 @@ function loadProfiles(profileSet, list, csrf, hidesHistory, hidesAccountId) {
   }
 
   const redirectUri = encodeURIComponent(window.location.href);
-  profileSet.destProfiles.forEach(function(item) {
-    var name = item.profile;
+  profileSet.destProfiles.forEach((item) => {
+    let name = item.profile;
     if (recentNames.indexOf(name) !== -1) return true;
     if (!hidesAccountId) name += '  |  ' + item.aws_account_id;
 
-    var color = item.color || 'aaaaaa';
-    var actionHost = window.location.host.endsWith('.amazonaws-us-gov.com') ? 'signin.amazonaws-us-gov.com' : 'signin.aws.amazon.com';
+    let color = item.color || 'aaaaaa';
+    let actionHost = window.location.host.endsWith('.amazonaws-us-gov.com') ? 'signin.amazonaws-us-gov.com' : 'signin.aws.amazon.com';
     if (!item.image) {
         list.insertAdjacentHTML('beforeend', Sanitizer.escapeHTML`<li>
          <form action="https://${actionHost}/switchrole" method="POST" target="_top" data-aesr-profile="${item.profile}">
@@ -159,7 +159,7 @@ function loadProfiles(profileSet, list, csrf, hidesHistory, hidesAccountId) {
   });
 
   Array.from(list.querySelectorAll('form')).forEach(form => {
-    form.onsubmit = function(e) {
+    form.onsubmit = (e) => {
       const destProfileName = this.dataset.aesrProfile;
       const foundProfile = profileSet.destProfiles.find(item => item.profile === destProfileName);
       return foundProfile ? hookBeforeSwitch(this, foundProfile) : true;
@@ -174,11 +174,11 @@ function loadProfiles(profileSet, list, csrf, hidesHistory, hidesAccountId) {
   }
 
   // Place role filter textinput
-  var AWSR_firstForm = null;
+  let AWSR_firstForm = null;
 
   document.getElementById('awsc-recent-roles-label').insertAdjacentHTML('beforeend', '<input id="AESR_RoleFilter" type="text" placeholder="Filter by profile name" style="border:1px solid #ccc;border-radius:3px;font-size:13px;margin-left:0.25em;max-width:20ex;padding:0.4ex">');
 
-  document.getElementById('AESR_RoleFilter').onkeyup = function(e) {
+  document.getElementById('AESR_RoleFilter').onkeyup = (e) => {
     const str = this.value;
     if (e.keyCode === 13) {
       if (AWSR_firstForm) {
@@ -210,17 +210,17 @@ function loadProfiles(profileSet, list, csrf, hidesHistory, hidesAccountId) {
   })
 }
 
-function attachColorLine(profiles) {
-  var usernameMenu = elById('nav-usernameMenu');
+const attachColorLine = (profiles) => {
+  let usernameMenu = elById('nav-usernameMenu');
   if (usernameMenu.classList.contains('awsc-has-switched-role')) {
-    var profileName = usernameMenu.textContent.trim().split(/\s+\|\s+/)[0];
+    let profileName = usernameMenu.textContent.trim().split(/\s+\|\s+/)[0];
 
     usernameMenu.style = 'white-space:pre';
 
     const found = profiles.find(item => { return item.profile === profileName });
     const color = found && found.color || null;
 
-    var label = usernameMenu.querySelector('.nav-elt-label');
+    let label = usernameMenu.querySelector('.nav-elt-label');
     if (found && found.image) {
       label.insertAdjacentHTML('beforebegin', Sanitizer.escapeHTML`<img id="AESW_Image" src=${found.image.replace(/"/g, '')} style="float: left; padding-right: .66em; width: 1.33em; height: 1.33em">`);
     }
@@ -230,8 +230,8 @@ function attachColorLine(profiles) {
         label.style = 'color: #eee';
       }
 
-      var menubar = elById('nav-menubar');
-      var barDiv = document.createElement('div');
+      let menubar = elById('nav-menubar');
+      let barDiv = document.createElement('div');
       barDiv.id = 'AESW_ColorLine';
       barDiv.style = 'position:absolute;top:39px;width:100%;height:3px;z-index:0;background-color:#' + color;
       menubar.appendChild(barDiv);
@@ -239,8 +239,8 @@ function attachColorLine(profiles) {
   }
 }
 
-function needsInvertForeColorByBack(color) {
-  var r = color.substr(0, 2),
+const needsInvertForeColorByBack = (color) => {
+  let r = color.substr(0, 2),
       g = color.substr(2, 2),
       b = color.substr(4, 2);
 

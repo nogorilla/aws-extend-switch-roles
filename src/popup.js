@@ -1,4 +1,4 @@
-function openOptions() {
+const openOptions = () => {
   if (window.chrome) {
     chrome.runtime.openOptionsPage(err => {
       console.log(`Error: ${error}`);
@@ -10,14 +10,14 @@ function openOptions() {
   }
 }
 
-window.onload = function() {
-  document.getElementById('openOptionsLink').onclick = function(e) {
+window.onload = () => {
+  document.getElementById('openOptionsLink').onclick = (e) => {
     openOptions();
     return false;
   }
 
-  document.getElementById('openCreditsLink').onclick = function(e) {
-    chrome.tabs.create({ url: chrome.extension.getURL('credits.html')}, function(tab){});
+  document.getElementById('openCreditsLink').onclick = (e) => {
+    chrome.tabs.create({ url: chrome.extension.getURL('credits.html')}, (tab) => {});
     return false;
   }
 }

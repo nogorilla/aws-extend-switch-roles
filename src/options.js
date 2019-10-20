@@ -1,19 +1,19 @@
-function elById(id) {
+const elById = (id) => {
   return document.getElementById(id);
 }
 
-window.onload = function() {
-  var colorPicker = new ColorPicker(document);
+window.onload = () => {
+  let colorPicker = new ColorPicker(document);
 
-  var selection = [];
-  var textArea = elById('awsConfigTextArea');
-  textArea.onselect = function() {
-    var str = this.value.substring(this.selectionStart, this.selectionEnd);
-    var r = str.match(/^([0-9a-fA-F]{6})$/);
+  let selection = [];
+  let textArea = elById('awsConfigTextArea');
+  textArea.onselect = () => {
+    let str = this.value.substring(this.selectionStart, this.selectionEnd);
+    let r = str.match(/^([0-9a-fA-F]{6})$/);
     if (r !== null) {
       colorPicker.setColor(r[1]);
       selection = [this.selectionStart, this.selectionEnd];
-      colorPicker.onpick = function(newColor) {
+      colorPicker.onpick = (newColor) => {
         str = textArea.value;
         textArea.value = str.substring(0, selection[0]) + newColor + str.substring(selection[1]);
       }
@@ -23,10 +23,10 @@ window.onload = function() {
     }
   }
 
-  var msgSpan = elById('msgSpan');
-  var saveButton = elById('saveButton');
-  saveButton.onclick = function() {
-    var rawstr = textArea.value;
+  let msgSpan = elById('msgSpan');
+  let saveButton = elById('saveButton');
+  saveButton.onclick = () => {
+    let rawstr = textArea.value;
 
     try {
       const profiles = loadAwsConfig(rawstr);
@@ -42,7 +42,7 @@ window.onload = function() {
       dataSet.lztext = LZString.compressToUTF16(rawstr);
 
       chrome.storage.sync.set(dataSet,
-        function() {
+        () => {
           const { lastError } = chrome.runtime || browser.runtime;
           if (lastError) {
             msgSpan.innerHTML = Sanitizer.escapeHTML`<span style="color:#dd1111">${lastError.message}</span>`;
@@ -50,7 +50,7 @@ window.onload = function() {
           }
 
           msgSpan.innerHTML = '<span style="color:#1111dd">Configuration has been updated!</span>';
-          setTimeout(function() {
+          setTimeout(() => {
             msgSpan.innerHTML = '';
           }, 2500);
         });
@@ -61,16 +61,16 @@ window.onload = function() {
 
   const booleanSettings = ['hidesHistory', 'hidesAccountId', 'showOnlyMatchingRoles', 'autoAssumeLastRole'];
   for (let key of booleanSettings) {
-    elById(`${key}CheckBox`).onchange = function() {
+    elById(`${key}CheckBox`).onchange = () => {
       chrome.storage.sync.set({ [key]: this.checked });
     }
   }
 
-  elById('configSenderIdText').onchange = function() {
+  elById('configSenderIdText').onchange = () => {
     chrome.storage.sync.set({ configSenderId: this.value });
   }
 
-  chrome.storage.sync.get(['lztext', 'configSenderId'].concat(booleanSettings), function(data) {
+  chrome.storage.sync.get(['lztext', 'configSenderId'].concat(booleanSettings), (data) => {
     let rawData = localStorage['rawdata'];
     if (data.lztext) {
       try {

@@ -1,4 +1,4 @@
-function saveAwsConfig(data, callback) {
+const saveAwsConfig = (data, callback) => {
   const rawstr = data;
 
   try {
@@ -18,7 +18,7 @@ function saveAwsConfig(data, callback) {
     dataSet.lztext = LZString.compressToUTF16(rawstr);
 
     chrome.storage.sync.set(dataSet,
-      function() {
+      () => {
         callback({ result: 'success' });
       });
   } catch (e) {
@@ -31,7 +31,7 @@ function saveAwsConfig(data, callback) {
   }
 }
 
-chrome.runtime.onMessageExternal.addListener(function (message, sender, sendResponse) {
+chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
   const { action, dataType, data } = message || {};
   if (!action || !dataType || !data) return;
 
